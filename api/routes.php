@@ -183,74 +183,6 @@ class AIRouteAdvisor {
             'data' => $stmt->fetchAll()
         ];
     }
-
-    /**
-     * Scenic rota önerisi
-     */
-    public function getScenicRoute($startPoint, $endPoint, $hasChildren = false) {
-        $tripData = [
-            'start_point' => $startPoint,
-            'end_point' => $endPoint,
-            'vehicle_type' => 'car',
-            'has_children' => $hasChildren
-        ];
-
-        return $this->getSuggestions($tripData);
-    }
-
-    /**
-     * Budget-friendly rota önerisi
-     */
-    public function getBudgetRoute($startPoint, $endPoint) {
-        $prompt = "
-        Aşağıdaki rota için BUDGET-FRIENDLY (uygun fiyatlı) önerileri yap:
-        Başlangıç: {$startPoint}
-        Bitiş: {$endPoint}
-        
-        Ucuz yemek yerleri, ücretsiz cazibe noktaları ve ekonomik konaklama seçeneklerini öner.
-        JSON formatında yanıt ver.
-        ";
-
-        $response = $this->callOpenAI($prompt);
-        return [
-            'success' => $response ? true : false,
-            'data' => $response
-        ];
-    }
-
-    /**
-     * Aile dostu rota önerisi
-     */
-    public function getFamilyFriendlyRoute($startPoint, $endPoint) {
-        $tripData = [
-            'start_point' => $startPoint,
-            'end_point' => $endPoint,
-            'vehicle_type' => 'car',
-            'has_children' => true
-        ];
-
-        return $this->getSuggestions($tripData);
-    }
-
-    /**
-     * Adventure rota önerisi
-     */
-    public function getAdventureRoute($startPoint, $endPoint) {
-        $prompt = "
-        Aşağıdaki rota için ADVENTURE (macera) önerileri yap:
-        Başlangıç: {$startPoint}
-        Bitiş: {$endPoint}
-        
-        Doğa yürüyüşü, outdoor aktiviteler, adrenalin sporlayı ve keşif noktalarını öner.
-        JSON formatında yanıt ver.
-        ";
-
-        $response = $this->callOpenAI($prompt);
-        return [
-            'success' => $response ? true : false,
-            'data' => $response
-        ];
-    }
 }
 
 // API Endpoint
@@ -262,40 +194,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($action === 'get_suggestions') {
         echo json_encode($advisor->getSuggestions($data));
-
-    } elseif ($action === 'scenic') {
-        echo json_encode($advisor->getScenicRoute(
-            $data['start_point'] ?? '',
-            $data['end_point'] ?? '',
-            $data['has_children'] ?? false
-        ));
-
-    } elseif ($action === 'budget') {
-        echo json_encode($advisor->getBudgetRoute(
-            $data['start_point'] ?? '',
-            $data['end_point'] ?? ''
-        ));
-
-    } elseif ($action === 'family_friendly') {
-        echo json_encode($advisor->getFamilyFriendlyRoute(
-            $data['start_point'] ?? '',
-            $data['end_point'] ?? ''
-        ));
-
-    } elseif ($action === 'adventure') {
-        echo json_encode($advisor->getAdventureRoute(
-            $data['start_point'] ?? '',
-            $data['end_point'] ?? ''
-        ));
-
-    } elseif ($action === 'save') {
-        echo json_encode($advisor->saveRouteSuggestion(
-            $data['trip_id'],
-            $data['suggestion_type'],
-            $data
-        ));
     }
-
 } elseif ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $action = $_GET['action'] ?? null;
     $advisor = new AIRouteAdvisor();
